@@ -1,0 +1,39 @@
+[enu default]
+
+TAG_HANDCHARGE                     = "Battery Charger";
+PICKUP_HANDCHARGE                  = "You found the Battery Charger.";
+OB_HANDCHARGE                      = "%o was assaulted by %k.";
+
+// Options Menu Titles.
+HANDCHARGE_MENU                    = "\c[LightBlue]Ⓗ\c- HandCharge";
+MENU_ITEMS_TITLE                   = "--- Items ---";
+MENU_RESETOPTIONS_TITLE            = "--- Reset Options ---";
+
+// Menu Section Headers
+MENU_SPAWNOPTIONS                  = "Spawn Options";
+MENU_PERSISTENCYOPTIONS            = "Spawn Persistence Options";
+MENU_RESETOPTIONS                  = "Reset Options";
+MENU_RESETALLOPTIONS               = "Reset all Options";
+
+// Menu Static Text
+MENU_SPAWNRATE_TEXT1               = "Setting 'spawn rate' to Replace All will suppress";
+MENU_SPAWNRATE_TEXT2               = "spawns of that given type.";
+MENU_PERSISTENCY_TEXT              = "Control whether replacements happen after a mapload:";
+
+// Menu Option Labels
+MENU_NOTICE                        = "Notice:";
+MENU_BACKPACKSALLOWED              = "Allowed in Ammo Boxes and/or Backpacks: ";
+MENU_SPAWNRATE                     = "Spawn Rate: ";
+MENU_PERSISTENCY                   = "Persistent Spawns: ";
+
+// Menu Command Text
+MENU_RESETPERSISTENCY              = "Reset Persistence Options";
+HANDCHARGE_RESETALLOPTIONS         = "Reset all options for Handcharge.";
+
+// Menu Titles
+TITLE_HANDCHARGE_MENU              = "------ Battery Charger Options ------";
+
+// Spawning Menu Labels
+MENU_HANDCHARGE_CHAINSAW_SPAWNTEXT = "Control the spawn rate of the Battery Charger on Chainsaws:";
+MENU_HANDCHARGE_SHOTGUN_SPAWNTEXT  = "Control the spawn rate of the Battery Charger on Shotguns:";
+MENU_HANDCHARGE_BACKPACKS          = "Control whether the Battery Charger spawns in Backpacks:";

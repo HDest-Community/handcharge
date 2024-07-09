@@ -1,0 +1,71 @@
+// Spawn Bias (for items that do replace)
+OptionValue "SpawnBias" {
+	-1,    "Disabled"
+	 0,    "Replace All"
+	 2,    "1 in 3"
+	 4,    "1 in 5"
+	 9,    "1 in 10"
+	 14,   "1 in 15"
+	 19,   "1 in 20"
+	 24,   "1 in 25"
+	 49,   "1 in 50"
+	 99,   "1 in 100"
+	 149,  "1 in 150"
+	 199,  "1 in 200"
+}
+
+OptionMenu "HandChargeMenu" {
+
+    Title "$HANDCHARGE_MENU"
+
+	StaticText "$MENU_ITEMS_TITLE", "green"
+	StaticText ""
+    Submenu "$TAG_HANDCHARGE", "handchargeSpawning", 0, 1
+	StaticText ""
+
+	StaticText "$MENU_RESETOPTIONS_TITLE", "Red"
+	StaticText ""
+	SafeCommand "$HANDCHARGE_RESETALLOPTIONS", "HandCharge_Reset_Cvars"
+}
+
+AddOptionMenu "OptionsMenu"
+{
+    Submenu "$HANDCHARGE_MENU", "HandChargeMenu"
+}
+
+AddOptionMenu "HDAddonMenu"
+{
+	Submenu "$HANDCHARGE_MENU", "HandChargeMenu"
+}
+
+OptionMenu "handchargeSpawning" {
+    Title "$MENU_HANDCHARGE_TITLE"
+
+   	StaticText "$MENU_NOTICE", "green"
+    StaticText "$MENU_SPAWNRATE_TEXT1", "White"
+    StaticText "$MENU_SPAWNRATE_TEXT2", "White"
+    StaticText ""
+
+	StaticText "$MENU_SPAWNOPTIONS", "green"
+    StaticText "$MENU_HANDCHARGE_CHAINSAW_SPAWNTEXT", "White"
+	Option "$MENU_SPAWNRATE", "handcharge_chainsaw_spawn_bias", "SpawnBias"
+	SafeCommand "$MENU_RESETOPTIONS", "resetcvar handcharge_chainsaw_spawn_bias"
+    StaticText "$MENU_HANDCHARGE_SHOTGUN_SPAWNTEXT", "White"
+	Option "$MENU_SPAWNRATE", "handcharge_shotgun_spawn_bias", "SpawnBias"
+	SafeCommand "$MENU_RESETOPTIONS", "resetcvar handcharge_shotgun_spawn_bias"
+ 	StaticText ""
+
+	StaticText "$MENU_HANDCHARGE_BACKPACKS", "White"
+	Option "$MENU_BACKPACKSALLOWED", "handcharge_allowBackpacks", "OnOff"
+ 	StaticText ""
+
+	StaticText "$MENU_PERSISTENCYOPTIONS", "green"
+    StaticText "$MENU_PERSISTENCY_TEXT", "White"
+	Option "$MENU_PERSISTENCY", "handcharge_persistent_spawning", "OnOff"
+	SafeCommand "$MENU_RESETPERSISTENCY", "resetcvar handcharge_persistent_spawning"
+ 	StaticText ""
+   	StaticText ""
+
+	StaticText "$MENU_RESETOPTIONS", "green"
+	SafeCommand "$MENU_RESETALLOPTIONS", "handcharge_reset_cvars"
+}

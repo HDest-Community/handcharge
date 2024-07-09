@@ -1,0 +1,1 @@
+alias handcharge_reset_cvars     "resetcvar handcharge_chainsaw_spawn_bias; resetcvar handcharge_shotgun_spawn_bias; resetcvar handcharge_allowBackpacks; resetcvar handcharge_persistent_spawning;"

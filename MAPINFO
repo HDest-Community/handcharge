@@ -1,4 +1,3 @@
-GameInfo
-{
-	AddEventHandlers = "ChargerHandler"
+GameInfo {
+	AddEventHandlers = "HandChargeHandler"
 }

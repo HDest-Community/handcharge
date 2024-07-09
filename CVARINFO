@@ -1,0 +1,5 @@
+server bool handcharge_allowBackpacks       = true;
+
+server int  handcharge_chainsaw_spawn_bias  = 4;
+server int  handcharge_shotgun_spawn_bias   = 4;
+server bool handcharge_persistent_spawning  = false;
