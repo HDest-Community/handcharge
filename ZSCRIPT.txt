@@ -1,0 +1,476 @@
+version "4.6"
+
+class ChargerHandler : EventHandler
+{
+	override void CheckReplacement(ReplaceEvent e)
+	{
+		if (!e.Replacement)
+		{
+			return;
+		}
+
+		switch (e.Replacement.GetClassName())
+		{
+			case 'ShotgunReplaces':
+				if (random[chgrand]() <= 64)
+				{
+					e.Replacement = "ChargerRandom";
+				}
+				break;
+		}
+	}
+}
+
+class HDCharger:HDCellWeapon{
+	default{
+	//$Sprite "CGPAA0"
+		+hdweapon.fitsinbackpack
+		+hdweapon.reverseguninertia
+		+inventory.invbar
+		scale 0.6;
+		weapon.bobrangex 0.22;
+		weapon.bobrangey 0.9;
+		Inventory.PickupMessage "You found the Battery Charger.";
+		obituary "%o was assaulted by %k.";
+		hdweapon.refid "chg";
+		hdweapon.barrelsize 11,0.3,0.5;
+		Tag "Battery Charger";
+		inventory.maxamount 1;
+	}
+	override double weaponbulk(){
+		return 69; //it was gonna be 70 blocks anyways
+	}
+	override double gunmass(){
+		return 11;
+	}
+	override void consolidate(){
+		weaponstatus[CHG_BATTERY]=20;
+	}
+	override string,double getpickupsprite(){return "CGPAA0",1.;}
+	override void DrawHUDStuff(HDStatusBar sb,HDWeapon hdw,HDPlayerPawn hpl){
+		int bat=hdw.weaponstatus[CHG_BATTERY];
+		sb.drawwepnum(clamp(bat,0,5),5);
+		sb.drawwepnum(clamp(bat-5,0,5),5,posy:-8);
+		sb.drawwepnum(clamp(bat-10,0,5),5,posy:-10);
+		sb.drawwepnum(clamp(bat-15,0,5),5,posy:-12);
+		if (hdw.weaponstatus[CHG_BATTERY]>-1)
+		sb.drawnum(hdw.weaponstatus[CHG_BATTERY],-44,-14,sb.DI_SCREEN_CENTER_BOTTOM|sb.DI_TEXT_ALIGN_RIGHT,Font.CR_LIGHTBLUE);
+	}
+	override string gethelptext(){
+		return
+		WEPHELP_FIRE..(weaponstatus[0]&CHG_CRANK?" / "..WEPHELP_ALTFIRE..(weaponstatus[0]&CHG_PUMP?" Slide Pump\n":"  Turn Crank\n"):"  \n")
+		..WEPHELP_ALTRELOAD..(weaponstatus[0]&CHG_PUMP?
+		(weaponstatus[0]&CHG_CRANK?"  Release Slide\n":"  Grab Slide\n"):
+		(weaponstatus[0]&CHG_CRANK?"  Release Crank\n":"  Grab Crank\n"))
+		..WEPHELP_RELOAD.."  Reload Battery\n"
+		..WEPHELP_UNLOAD.."  Unload Battery\n"
+		..WEPHELP_MAGMANAGER
+		;
+	}
+	override void DrawSightPicture(
+		HDStatusBar sb,HDWeapon hdw,HDPlayerPawn hpl,
+		bool sightbob,vector2 bob,double fov,bool scopeview,actor hpc,string whichdot
+	){
+		int cx,cy,cw,ch;
+		[cx,cy,cw,ch]=screen.GetClipRect();
+		vector2 scc;
+		vector2 bobb=bob*1.6;
+		{
+			sb.SetClipRect(
+				-8+bob.x,-4+bob.y,16,10,
+				sb.DI_SCREEN_CENTER
+			);
+			scc=(0.8,0.8);
+			bobb.y=clamp(bobb.y,-8,8);
+		}
+		sb.drawimage(
+			"oddbfrst",(0,0)+bobb,sb.DI_SCREEN_CENTER|sb.DI_ITEM_TOP,
+			alpha:0.9,scale:scc
+		);
+		sb.SetClipRect(cx,cy,cw,ch);
+		sb.drawimage(
+			"oddbbkst",(0,0)+bob,sb.DI_SCREEN_CENTER|sb.DI_ITEM_TOP,
+			scale:scc
+		);
+	}
+	override void DetachFromOwner(){
+		weaponstatus[0]&=~CHG_CRANK;
+		weaponstatus[0]&=~CHG_RIGHT;
+		weaponstatus[0]&=~CHG_LEFT;
+		Super.DetachFromOwner();
+	}
+	action void A_CrankinIt(){ //Charging your crystals with a bro
+		if((invoker.weaponstatus[CHG_BATTERY]<20)&&(invoker.weaponstatus[CHG_BATTERY]>=0))
+		invoker.weaponstatus[CHG_BATTERY]++;
+		A_AlertMonsters();
+	}
+	override bool AddSpareWeapon(actor newowner){return AddSpareWeaponRegular(newowner);}
+	override hdweapon GetSpareWeapon(actor newowner,bool reverse,bool doselect){return GetSpareWeaponRegular(newowner,reverse,doselect);}
+	states{
+	Spawn:
+		CGPA A -1;
+		stop;
+	Select0:
+		TNT1 A 0{
+			invoker.weaponstatus[0]&=~CHG_CRANK;
+			invoker.weaponstatus[0]&=~CHG_RIGHT;
+			invoker.weaponstatus[0]&=~CHG_LEFT;
+			}
+	Riseup:
+		D3UP AA 0 A_raise;
+		D3UP AAAAA 0 A_raise;
+		CGBL A 1;
+		loop;
+	
+	Ready:
+		CGBL A 1{
+			A_weaponready(WRF_ALL);
+			A_WeaponBusy(false);
+			}
+		loop;
+	Deselect0:
+		TNT1 A 0{
+			A_JumpIf(invoker.weaponstatus[0]&CHG_RIGHT,"RightSwitchAway");
+			A_JumpIf(invoker.weaponstatus[0]&CHG_LEFT,"LeftSwitchAway");
+			}
+		CGBL A 1 A_lower;
+		TNT1 AAA 0 A_lower;
+		CGBL A 1 A_lower;
+		loop;
+	RightSwitchAway:
+		TNT1 A 0{
+			invoker.weaponstatus[0]&=~CHG_CRANK;
+			invoker.weaponstatus[0]&=~CHG_RIGHT;
+			invoker.weaponstatus[0]&=~CHG_LEFT;
+			}
+		CGBL G 2;
+		CGBL CB 1;
+		CGBL A 1 offset(1,31);
+		goto Deselect0;
+	LeftSwitchAway:
+		TNT1 A 0{
+			invoker.weaponstatus[0]&=~CHG_CRANK;
+			invoker.weaponstatus[0]&=~CHG_RIGHT;
+			invoker.weaponstatus[0]&=~CHG_LEFT;
+			}
+		CGBL LMNG 2;
+		CGBL CB 1;
+		CGBL A 1 offset(1,31);
+		goto Deselect0;
+		
+	Fire:
+		TNT1 A 0{
+			if(invoker.weaponstatus[0]&CHG_CRANK){
+				if(invoker.weaponstatus[0]&CHG_PUMP)setweaponstate("PumpCheck");
+				else setweaponstate("RightCrankCheck");
+				}
+			}
+		goto ready;
+	Altfire:
+		TNT1 A 0{
+			if(invoker.weaponstatus[0]&CHG_CRANK){
+				if(invoker.weaponstatus[0]&CHG_PUMP)setweaponstate("PumpCheck");
+				else setweaponstate("LeftCrankCheck");
+				}
+			}
+		CGBL A 1;
+		goto ready;
+		Reload:
+			#### A 0
+			{
+				if (invoker.weaponstatus[CHG_Battery] == 0 || !CheckInventory("HDBattery", 1))
+				{
+					SetWeaponState("Nope");
+					return;
+				}
+				invoker.WeaponStatus[CHG_LoadType] = 1;
+			}
+			Goto Reload1;
+				Unload:
+			#### A 0
+			{
+				if (invoker.WeaponStatus[CHG_Battery] == -1)
+				{
+					SetWeaponState("Nope");
+					return;
+				}
+				invoker.WeaponStatus[CHG_LoadType] = 0;
+			}
+			Goto Reload1;
+		Reload1:
+			#### A 4;
+			#### B 2 Offset(0, 36) A_MuzzleClimb(-frandom(1.2, 2.4), frandom(1.2, 2.4));
+			#### C 2 Offset(0, 38) A_MuzzleClimb(-frandom(1.2, 2.4), frandom(1.2, 2.4));
+			#### C 4 Offset(0, 40)
+			{
+				A_MuzzleClimb(-frandom(1.2, 2.4), frandom(1.2, 2.4));
+				A_StartSound("weapons/bfgclick2", 8);
+			}
+			#### C 2 Offset(0, 42)
+			{
+				A_MuzzleClimb(-frandom(1.2, 2.4), frandom(1.2, 2.4));
+				A_StartSound("weapons/bfgopen", 8);
+				if(invoker.WeaponStatus[CHG_Battery] >= 0)
+				{
+					if (PressingReload() || PressingUnload())
+					{
+						HDMagAmmo.GiveMag(self, "HDBattery", invoker.WeaponStatus[CHG_Battery]);
+						A_SetTics(10);
+					}
+					else
+					{
+						HDMagAmmo.SpawnMag(self, "HDBattery", invoker.WeaponStatus[CHG_Battery]);
+						A_SetTics(4);
+					}
+				}
+				invoker.WeaponStatus[CHG_Battery] = -1;
+			}
+			Goto BatteryOut;
+		BatteryOut:
+			#### C 4 Offset(0, 42)
+			{
+				if (invoker.WeaponStatus[CHG_LoadType] == 0)
+				{
+					SetWeaponState("Reload3");
+				}
+				else
+				{
+					A_StartSound("weapons/pocket", 9);
+				}
+			}
+			#### C 12;
+			#### C 12 Offset(0, 42) A_StartSound("weapons/bfgbattout", 8);
+			#### C 10 Offset(0, 36) A_StartSound("weapons/bfgbattpop", 8);
+			#### C 0
+			{
+				let Battery = HDMagAmmo(FindInventory("HDBattery"));	
+				if (Battery && Battery.Amount >= 0)
+				{
+					Battery.LowestToLast();
+					invoker.WeaponStatus[CHG_Battery] = Battery.TakeMag(false);
+				}
+				else
+				{
+					SetWeaponState("Reload3");
+					return;
+				}
+			}
+		Reload3:
+			#### C 6 Offset(0, 38) A_StartSound("weapons/bfgopen", 8);
+			#### C 8 Offset(0, 37) A_StartSound("weapons/bfgclick2", 8);
+			#### C 2 Offset(0, 38);
+			#### B 2 Offset(0, 36);
+			#### A 2 Offset(0, 34);
+			#### A 12;
+			Goto Ready;
+		Reload4:
+			#### CBA 2;
+			Goto Nope;
+
+	AltReload:
+		TNT1 A 0 A_JumpIf(invoker.weaponstatus[0]&CHG_CRANK,"StopThatCrap");
+		CGBL A 1 offset(1,31);
+		CGBL A 1 offset(2,30);
+		TNT1 A 0 {
+			A_weaponready(WRF_NOFIRE|WRF_NOSWITCH);
+			if(invoker.weaponstatus[0]&CHG_PUMP){
+				setweaponstate("PumpReload");
+				invoker.weaponstatus[0]|=CHG_CRANK;
+				A_SetHelpText();
+				}
+			}
+		CGBL BC 2;
+		CGBL DEFGH 2;
+		TNT1 A 0{
+			invoker.weaponstatus[0]|=CHG_RIGHT;
+			invoker.weaponstatus[0]|=CHG_CRANK;
+			A_SetHelpText();
+		}
+		goto RightCrankWait;
+	PumpReload:
+		CGPM AB 2;
+		CGPM CDEF 2;
+		TNT1 A 0{invoker.weaponstatus[0]|=CHG_CRANK;}
+		goto pumpwait;
+	//Using the multiplayer-friendly pump-style mode.
+	PumpWait: //ready to start jerkin' it
+		CGPM F 1 A_WeaponReady(WRF_ALLOWRELOAD|WRF_NOBOB);
+		loop;
+	PumpCheck:
+		TNT1 A 0 A_STARTSOUND("Oddball/PumpUp",0);
+		TNT1 A 0 offset(1,29);
+		CGPM GH 2{
+			if(!PressingFire()&&!PressingAltFire())
+			setweaponstate("PumpFail");
+			}
+		CGPM H 1 offset(0,30);
+		CGPM H 0{
+			if(!PressingFire()&&!PressingAltFire())
+			setweaponstate("PumpFail");
+			}
+		TNT1 A 0 offset(-1,31);
+		TNT1 A 0{A_CrankinIt();A_CrankinIt();A_CrankinIt();}
+	MidCheck: //succeed and hold, anything before this ends prematurely
+		CGPM I 1;
+		TNT1 A 0 A_JumpIf(PressingFire()||PressingAltFire(),"MidCheck");
+		goto pumpfinish;
+	PumpFail: 
+		CGPM JK 2 offset(-1,35);
+		CGPM K 1 offset(0,34);
+		CGPM F 1 offset(1,33);
+		TNT1 A 0 offset(0,32);
+		goto pumpwait;
+	PumpFinish:
+		TNT1 A 0 offset(-1,35);
+		TNT1 A 0{
+			A_STARTSOUND("Oddball/PumpDown",0);
+			A_CrankinIt();
+			}
+		CGPM JK 2 {A_CrankinIt();A_CrankinIt();}
+		CGPM K 1 offset(0,34);
+		CGPM F 1 offset(1,33);
+		TNT1 A 0 offset(0,32);
+		goto pumpwait;
+	
+	//Waiting while the handle is all the way to the right
+	RightCrankWait:
+		CGBL H 1 A_WeaponReady(WRF_ALLOWUSER1|WRF_NOBOB);
+		loop;
+	
+	//If the player fucks up here it means they're actually on the left side
+	RightCrankCheck:
+		TNT1 A 0 A_JumpIf(invoker.weaponstatus[0]&CHG_RIGHT,"RightCrank");
+		TNT1 A 0 A_STARTSOUND("OddBall/Woopsie",0);
+		CGBL L 2 offset(1,31);
+		CGBL L 2 offset(-1,33);
+		CGBL L 2 offset(1,31);
+		CGBL L 2 offset(-1,33);
+		CGBL L 2 offset(1,31);
+		CGBL L 2 offset(-1,33);
+		CGBL L 2 offset(1,31);
+		CGBL L 2 offset(-1,33);
+		CGBL L 10;
+		goto LeftCrankWait;
+	RightCrank:
+		TNT1 A 0;
+		TNT1 A 0{invoker.weaponstatus[0]&=~CHG_RIGHT;}
+		TNT1 A 0{invoker.weaponstatus[0]|=CHG_LEFT;}
+		TNT1 A 0 offset(1,29);
+		TNT1 A 0 A_STARTSOUND("Oddball/Crank",0);
+		CGBL HI 2;
+		TNT1 A 0 offset(0,30);
+		CGBL JK 2;
+		TNT1 A 0 offset(-1,31);
+		CGBL LL 2;
+		TNT1 A 0 offset(0,32);
+		goto LeftCrankWait;
+	
+	//Waiting while the handle is all the way to the left
+	LeftCrankWait:
+		CGBL L 1 A_weaponready (WRF_ALLOWUSER1|WRF_NOBOB);
+		Loop;
+	
+	//If the player fucks up here it means they're actually on the right side
+	LeftCrankCheck:
+		TNT1 A 0 A_JumpIf(invoker.weaponstatus[0]&CHG_LEFT,"LeftCrank");
+		TNT1 A 0 A_STARTSOUND("OddBall/Woopsie",0);
+		CGBL H 2 offset(-1,33);
+		CGBL H 2 offset(1,31);
+		CGBL H 2 offset(-1,33);
+		CGBL H 2 offset(1,31);
+		CGBL H 2 offset(-1,33);
+		CGBL H 2 offset(1,31);
+		CGBL H 2 offset(-1,33);
+		CGBL H 2 offset(1,31);
+		CGBL H 10;
+		goto RightCrankWait;
+	LeftCrank:
+		TNT1 A 0 offset(-1,35);
+		TNT1 A 0{
+			invoker.weaponstatus[0]&=~CHG_LEFT;
+			invoker.weaponstatus[0]|=CHG_RIGHT;
+			A_STARTSOUND("Oddball/Crank",0);
+		}
+		CGBL LM 2 ;
+		TNT1 A 0 offset(0,34);
+		CGBL N 1 A_CrankinIt();
+		TNT1 A 0 offset(1,33);
+		CGBL G 1 ;
+		TNT1 A 0 offset(1,33);
+		CGBL HH 2 ;
+		TNT1 A 0 offset(0,32);
+		goto RightCrankWait;
+		
+	Stopthatcrap:
+		TNT1 A 0{
+			invoker.weaponstatus[0]&=~CHG_CRANK;
+			invoker.weaponstatus[0]&=~CHG_LEFT;
+			A_SetHelpText();
+			if(invoker.weaponstatus[0]&CHG_PUMP)setweaponstate("Pumpstop");
+			else if(invoker.weaponstatus[0]&CHG_RIGHT)setweaponstate("Rightstop");
+			invoker.weaponstatus[0]&=~CHG_RIGHT;
+			}
+		CGBL LMNG 2;
+		goto CrankStop;
+	Rightstop:
+		CGBL G 2{invoker.weaponstatus[0]&=~CHG_RIGHT;}
+		goto crankstop;
+	Pumpstop:
+		CGPM MNBA 2 A_SetCrosshair(21);
+		goto ready;
+	CrankStop:
+		CGBL FOP 2{invoker.weaponstatus[0]&=~CHG_RIGHT;}
+		CGBL CB 2 A_SetCrosshair(21);
+		CGBL A 1 offset(2,30);
+		CGBL A 1 offset(1,31);
+		TNT1 A 0 A_weaponready (WRF_NOFIRE|WRF_NOSWITCH);
+		CGBL A 1;
+		goto ready;
+	user3:
+		---- A 0 A_MagManager("HDBattery");
+		goto ready;
+	}
+	override void initializewepstats(bool idfa){
+		weaponstatus[CHG_BATTERY]=-1;
+	}
+	override void loadoutconfigure(string input){
+		weaponstatus[0]&=~CHG_CRANK;
+		weaponstatus[0]&=~CHG_RIGHT;
+		weaponstatus[0]&=~CHG_LEFT;
+		int pump=getloadoutvar(input,"pump",1);
+		if(pump>0)weaponstatus[0]|=CHG_PUMP;
+	}
+}
+class ChargerRandom : IdleDummy
+{
+	States
+	{
+		Spawn:
+			TNT1 A 0 NoDelay
+			{
+				let wpn = HDCharger(Spawn("HDCharger", pos, ALLOW_REPLACE));
+				if (!wpn)
+				{
+					return;
+				}
+				
+				for (int i = 0; i < 5; ++i)
+				{
+					wpn.Args[i] = Args[i];
+				}
+			}
+			Stop;
+	}
+}
+
+enum oddballstatus{
+	CHG_CRANK=1,
+	CHG_LEFT=2,
+	CHG_RIGHT=4,
+	CHG_PUMP=8,
+
+	CHG_FLAGS=0,
+	CHG_BATTERY=1,
+	CHG_LOADTYPE=2,
+	CHG_CHARGE=3
+};
