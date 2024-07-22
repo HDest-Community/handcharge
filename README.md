@@ -12,5 +12,7 @@ Can be configured with `pump` to use a simpler pump-crank, only requiring tappin
 
 ## Credits:
 
-- Sonoda, for the original addons.
+- Sonoda, for the original addon.
+- Skelegant, for the Oddball sprites.
+- Kegan & prettyFist for their original contributions to the original ZScript.
 - Undead Zeratul, for porting into the community organization, updating Spawn Handlers & menus.
