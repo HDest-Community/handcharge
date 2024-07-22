@@ -12,7 +12,7 @@ Can be configured with `pump` to use a simpler pump-crank, only requiring tappin
 
 ## Credits:
 
-- Sonoda, for the original addon.
+- Sonoda, for original addon.
+- Based on the Oddball from Peppergrinder, made by Combine_Kegan & prettyFist
 - Skelegant, for the Oddball sprites.
-- Kegan & prettyFist for their original contributions to the original ZScript.
 - Undead Zeratul, for porting into the community organization, updating Spawn Handlers & menus.
