@@ -26,6 +26,12 @@ MENU_BACKPACKSALLOWED              = "Allowed in Ammo Boxes and/or Backpacks: ";
 MENU_SPAWNRATE                     = "Spawn Rate: ";
 MENU_PERSISTENCY                   = "Persistent Spawns: ";
 
+// Menu Option Values
+MENU_ENABLED                       = "Enabled";
+MENU_DISABLED                      = "Disabled";
+MENU_REPLACEALL                    = "Replace All";
+MENU_WITHALL                       = "With All";
+
 // Menu Command Text
 MENU_RESETPERSISTENCY              = "Reset Persistence Options";
 HANDCHARGE_RESETALLOPTIONS         = "Reset all options for Handcharge.";
