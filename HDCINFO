@@ -1,0 +1,9 @@
+// Ammo Usages
+// addAmmoUser => { "ammoName": "HDBattery", "name": "HDCharger" }
+
+// Backpack Spawn Pool Filters
+addBPSpawnPoolFilter => { "name": "HDCharger", "allowed": "#handcharge_allowBackpacks" }
+
+// Handcharge Spawn Entries
+addSpawnTableSingleEntry => { "tableName": "ChainsawReplaces", "name": "ChargerRandom", "weight": "#handcharge_chainsaw_spawn_bias", "persists": "#handcharge_persistent_spawning" }
+addSpawnTableSingleEntry => { "tableName": "ShotgunReplaces", "name": "ChargerRandom", "weight": "#handcharge_shotgun_spawn_bias", "persists": "#handcharge_persistent_spawning" }
