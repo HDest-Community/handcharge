@@ -3,3 +3,5 @@ server bool  handcharge_allowBackpacks      = true;
 server float handcharge_chainsaw_spawn_bias = 0.2;
 server float handcharge_shotgun_spawn_bias  = 2.0;
 server bool  handcharge_persistent_spawning = false;
+
+server bool hdm_enable_handcharger = true;

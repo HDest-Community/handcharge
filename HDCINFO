@@ -10,3 +10,6 @@ addSpawnTableSingleEntry => { "tableName": "ShotgunReplaces", "name": "ChargerRa
 
 // AceCorp Weapon Crate Filters
 addWeaponCrateFilter => { "name": "HDCharger", "allowed": "#handcharge_allowBackpacks" }
+
+// Merchant Store Entries
+newMerchantStoreItem => { "enabled": "#hdm_enable_handcharger", "type": "item", "category": "$MERCH_CAT_HANDCHARGE", "item": "hdcharger", "icon": "CGPAA0", "displayName": "$MERCH_TAG_HANDCHARGE", "basePrice": "50", "flavorText": "$MERCH_FLAVOR_HANDCHARGE" }
