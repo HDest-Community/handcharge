@@ -33,10 +33,10 @@ OptionMenu "handchargeSpawning" {
 
 	StaticText "$MENU_SPAWNOPTIONS", "green"
     StaticText "$MENU_HANDCHARGE_CHAINSAW_SPAWNTEXT", "White"
-	ScaleSlider "$MENU_SPAWNRATE", "handcharge_chainsaw_spawn_bias", -1, 999, 1, "$MENU_REPLACEALL", "$MENU_DISABLED"
+	Slider "$MENU_SPAWNRATE", "handcharge_chainsaw_spawn_bias", 0.0, 100, .01, 2
 	SafeCommand "$MENU_RESETOPTIONS", "resetcvar handcharge_chainsaw_spawn_bias"
     StaticText "$MENU_HANDCHARGE_SHOTGUN_SPAWNTEXT", "White"
-	ScaleSlider "$MENU_SPAWNRATE", "handcharge_shotgun_spawn_bias", -1, 999, 1, "$MENU_REPLACEALL", "$MENU_DISABLED"
+	Slider "$MENU_SPAWNRATE", "handcharge_shotgun_spawn_bias", 0.0, 100, .01, 2
 	SafeCommand "$MENU_RESETOPTIONS", "resetcvar handcharge_shotgun_spawn_bias"
  	StaticText ""
 

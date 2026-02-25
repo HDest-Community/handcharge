@@ -43,3 +43,11 @@ TITLE_HANDCHARGE_MENU              = "------ Battery Charger Options ------";
 MENU_HANDCHARGE_CHAINSAW_SPAWNTEXT = "Control the spawn rate of the Battery Charger on Chainsaws:";
 MENU_HANDCHARGE_SHOTGUN_SPAWNTEXT  = "Control the spawn rate of the Battery Charger on Shotguns:";
 MENU_HANDCHARGE_BACKPACKS          = "Control whether the Battery Charger spawns in Backpacks:";
+
+
+// Merchant Store Entries
+
+// Handcharge
+MERCH_CAT_HANDCHARGE              = "Takemi Electronics";
+MERCH_TAG_HANDCHARGE              = "Handcharge";
+MERCH_FLAVOR_HANDCHARGE           = "A compact and useful charger powered by your own hands.";
