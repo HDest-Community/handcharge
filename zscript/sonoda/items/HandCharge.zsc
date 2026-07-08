@@ -68,8 +68,8 @@ class HDCharger : HDCellWeapon {
         ..WEPHELP_ALTRELOAD..(weaponStatus[CHG_FLAGS]&CHG_PUMP?
         (weaponStatus[CHG_FLAGS]&CHG_CRANK?"  Release Slide\n":"  Grab Slide\n"):
         (weaponStatus[CHG_FLAGS]&CHG_CRANK?"  Release Crank\n":"  Grab Crank\n"))
-        ..WEPHELP_RELOAD.."  Reload Battery\n"
-        ..WEPHELP_UNLOAD.."  Unload Battery\n"
+        ..(!(weaponStatus[CHG_FLAGS]&CHG_CRANK)?WEPHELP_RELOAD.."  Reload Battery\n":"")
+        ..(!(weaponStatus[CHG_FLAGS]&CHG_CRANK)?WEPHELP_UNLOAD.."  Unload Battery\n":"")
         ..WEPHELP_MAGMANAGER
         ;
     }
