@@ -89,17 +89,25 @@ class HDCharger : HDCellWeapon {
 
     // Charging your crystals with a bro
     action void A_CrankinIt() {
+        let hpl = HDPlayerPawn(self);
+
+        if (!hpl) return;
+
         let maxCharge = invoker.weaponStatus[CHG_BATTYPE] ? 10 : 20;
         if (invoker.weaponStatus[CHG_BATTERY] >= 0 && invoker.weaponStatus[CHG_BATTERY] < maxCharge) {
             invoker.crankCount++;
 
+            // if (invoker.crankCount >= invoker.weaponStatus[CHG_BATTERY] * (1.0 - (hpl.baseStrength() * 0.25))) {
             if (invoker.crankCount >= invoker.weaponStatus[CHG_BATTERY] * 0.25) {
                 invoker.crankCount = 0;
                 invoker.weaponStatus[CHG_BATTERY]++;
             }
         }
 
-        A_AlertMonsters();
+        A_AlertMonsters(128);
+
+        let maxTics = hd_maxstrength;
+        A_SetTics(clamp(0.5 * (maxTics - (hpl.baseStrength() * maxTics)), 2, 4));
     }
 
     states {
