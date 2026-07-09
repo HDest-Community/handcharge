@@ -40,7 +40,7 @@ class HDCharger : HDCellWeapon {
 
     override void consolidate() {
         crankCount = 0;
-        if (weaponStatus[CHG_BATTERY] > -1) weaponStatus[CHG_BATTERY] = weaponStatus[CHG_BATTYPE] ? 10 : 20;
+        if (weaponStatus[CHG_BATTERY] > -1) weaponStatus[CHG_BATTERY] = weaponStatus[CHG_FLAGS]&CHGF_BATTYPE ? 10 : 20;
     }
 
     override void DrawHUDStuff(HDStatusBar sb, HDWeapon hdw, HDPlayerPawn hpl) {
@@ -64,12 +64,12 @@ class HDCharger : HDCellWeapon {
     // TODO: Localize
     override string gethelptext() {
         return
-        WEPHELP_FIRE..(weaponStatus[CHG_FLAGS]&CHG_CRANK?" / "..WEPHELP_ALTFIRE..(weaponStatus[CHG_FLAGS]&CHG_PUMP?" Slide Pump\n":"  Turn Crank\n"):"  \n")
-        ..WEPHELP_ALTRELOAD..(weaponStatus[CHG_FLAGS]&CHG_PUMP?
-        (weaponStatus[CHG_FLAGS]&CHG_CRANK?"  Release Slide\n":"  Grab Slide\n"):
-        (weaponStatus[CHG_FLAGS]&CHG_CRANK?"  Release Crank\n":"  Grab Crank\n"))
-        ..(!(weaponStatus[CHG_FLAGS]&CHG_CRANK)?WEPHELP_RELOAD.."  Reload Battery\n":"")
-        ..(!(weaponStatus[CHG_FLAGS]&CHG_CRANK)?WEPHELP_UNLOAD.."  Unload Battery\n":"")
+        WEPHELP_FIRE..(weaponStatus[CHG_FLAGS]&CHGF_CRANK?" / "..WEPHELP_ALTFIRE..(weaponStatus[CHG_FLAGS]&CHGF_PUMP?" Slide Pump\n":"  Turn Crank\n"):"  \n")
+        ..WEPHELP_ALTRELOAD..(weaponStatus[CHG_FLAGS]&CHGF_PUMP?
+        (weaponStatus[CHG_FLAGS]&CHGF_CRANK?"  Release Slide\n":"  Grab Slide\n"):
+        (weaponStatus[CHG_FLAGS]&CHGF_CRANK?"  Release Crank\n":"  Grab Crank\n"))
+        ..(!(weaponStatus[CHG_FLAGS]&CHGF_CRANK)?WEPHELP_RELOAD.."  Reload Battery\n":"")
+        ..(!(weaponStatus[CHG_FLAGS]&CHGF_CRANK)?WEPHELP_UNLOAD.."  Unload Battery\n":"")
         ..WEPHELP_MAGMANAGER
         ;
     }
@@ -84,7 +84,7 @@ class HDCharger : HDCellWeapon {
     override void DetachFromOwner() {
         Super.DetachFromOwner();
 
-        weaponStatus[CHG_FLAGS] &= ~(CHG_CRANK|CHG_RIGHT|CHG_LEFT);
+        weaponStatus[CHG_FLAGS] &= ~(CHGF_CRANK|CHGF_RIGHT|CHGF_LEFT);
     }
 
     // Charging your crystals with a bro
@@ -93,7 +93,7 @@ class HDCharger : HDCellWeapon {
 
         if (!hpl) return;
 
-        let maxCharge = invoker.weaponStatus[CHG_BATTYPE] ? 10 : 20;
+        let maxCharge = invoker.weaponStatus[CHGF_BATTYPE] ? 10 : 20;
         if (invoker.weaponStatus[CHG_BATTERY] >= 0 && invoker.weaponStatus[CHG_BATTERY] < maxCharge) {
             invoker.crankCount++;
 
@@ -117,7 +117,7 @@ class HDCharger : HDCellWeapon {
 
         Select0:
             #### # 0 {
-                invoker.weaponStatus[CHG_FLAGS] &= ~(CHG_CRANK|CHG_RIGHT|CHG_LEFT);
+                invoker.weaponStatus[CHG_FLAGS] &= ~(CHGF_CRANK|CHGF_RIGHT|CHGF_LEFT);
             }
 
         Ready:
@@ -128,14 +128,14 @@ class HDCharger : HDCellWeapon {
             loop;
 
         Deselect0:
-            #### # 0 A_JumpIf(invoker.weaponStatus[CHG_FLAGS]&CHG_RIGHT, "RightSwitchAway");
-            #### # 0 A_JumpIf(invoker.weaponStatus[CHG_FLAGS]&CHG_LEFT, "LeftSwitchAway");
+            #### # 0 A_JumpIf(invoker.weaponStatus[CHG_FLAGS]&CHGF_RIGHT, "RightSwitchAway");
+            #### # 0 A_JumpIf(invoker.weaponStatus[CHG_FLAGS]&CHGF_LEFT, "LeftSwitchAway");
             CGBL AAAAA 1 A_lower;
             loop;
 
         RightSwitchAway:
             #### # 0 {
-                invoker.weaponStatus[CHG_FLAGS] &= ~(CHG_CRANK|CHG_RIGHT|CHG_LEFT);
+                invoker.weaponStatus[CHG_FLAGS] &= ~(CHGF_CRANK|CHGF_RIGHT|CHGF_LEFT);
             }
             CGBL G 2;
             CGBL DCB 1;
@@ -144,7 +144,7 @@ class HDCharger : HDCellWeapon {
 
         LeftSwitchAway:
             #### # 0 {
-                invoker.weaponStatus[CHG_FLAGS] &= ~(CHG_CRANK|CHG_RIGHT|CHG_LEFT);
+                invoker.weaponStatus[CHG_FLAGS] &= ~(CHGF_CRANK|CHGF_RIGHT|CHGF_LEFT);
             }
             CGBL LMNG 2;
             CGBL DCB 1;
@@ -152,17 +152,17 @@ class HDCharger : HDCellWeapon {
             goto Deselect0;
 
         Fire:
-            #### # 0 A_JumpIf(!(invoker.weaponStatus[CHG_FLAGS]&CHG_CRANK), "ready");
-            #### # 0 A_JumpIf(invoker.weaponStatus[CHG_FLAGS]&CHG_PUMP, "PumpCheck");
+            #### # 0 A_JumpIf(!(invoker.weaponStatus[CHG_FLAGS]&CHGF_CRANK), "ready");
+            #### # 0 A_JumpIf(invoker.weaponStatus[CHG_FLAGS]&CHGF_PUMP, "PumpCheck");
             goto RightCrankCheck;
 
         Altfire:
-            #### # 0 A_JumpIf(!(invoker.weaponStatus[CHG_FLAGS]&CHG_CRANK), "ready");
-            #### # 0 A_JumpIf(invoker.weaponStatus[CHG_FLAGS]&CHG_PUMP, "PumpCheck");
+            #### # 0 A_JumpIf(!(invoker.weaponStatus[CHG_FLAGS]&CHGF_CRANK), "ready");
+            #### # 0 A_JumpIf(invoker.weaponStatus[CHG_FLAGS]&CHGF_PUMP, "PumpCheck");
             goto LeftCrankCheck;
 
         Reload:
-            #### # 0 A_JumpIf(invoker.weaponStatus[CHG_BATTERY] >= 0 || !CheckInventory(invoker.weaponStatus[CHG_BATTYPE] ? "HDMicroCell" : "HDBattery", 1), "nope");
+            #### # 0 A_JumpIf(invoker.weaponStatus[CHG_BATTERY] >= 0 || !CheckInventory(invoker.weaponStatus[CHG_FLAGS]&CHGF_BATTYPE ? "HDMicroCell" : "HDBattery", 1), "nope");
             #### # 0 {
                 invoker.weaponStatus[CHG_LOADTYPE] = 1;
             }
@@ -187,7 +187,7 @@ class HDCharger : HDCellWeapon {
                 A_MuzzleClimb(-frandom(1.2, 2.4), frandom(1.2, 2.4));
                 A_StartSound("weapons/bfgopen", CHAN_WEAPON);
                 if (invoker.weaponStatus[CHG_BATTERY] >= 0) {
-                    let bat = invoker.weaponStatus[CHG_BATTYPE] ? "HDMicroCell" : "HDBattery";
+                    let bat = invoker.weaponStatus[CHG_FLAGS]&CHGF_BATTYPE ? "HDMicroCell" : "HDBattery";
                     if (PressingReload() || PressingUnload()) {
                         HDMagAmmo.GiveMag(self, bat, invoker.weaponStatus[CHG_BATTERY]);
                         A_SetTics(10);
@@ -208,7 +208,7 @@ class HDCharger : HDCellWeapon {
             #### C 12 offset(0, 42) A_StartSound("weapons/bfgbattout", CHAN_WEAPON);
             #### C 10 offset(0, 36) A_StartSound("weapons/bfgbattpop", CHAN_WEAPON);
             #### C 0 {
-                let battery = HDMagAmmo(FindInventory(invoker.weaponStatus[CHG_BATTYPE] ? "HDMicroCell" : "HDBattery"));	
+                let battery = HDMagAmmo(FindInventory(invoker.weaponStatus[CHG_FLAGS]&CHGF_BATTYPE ? "HDMicroCell" : "HDBattery"));	
 
                 if (battery && battery.Amount >= 0) {
                     battery.LowestToLast();
@@ -225,17 +225,17 @@ class HDCharger : HDCellWeapon {
             Goto Ready;
 
         AltReload:
-            #### # 0 A_JumpIf(invoker.weaponStatus[CHG_FLAGS]&CHG_CRANK, "StopThatCrap");
+            #### # 0 A_JumpIf(invoker.weaponStatus[CHG_FLAGS]&CHGF_CRANK, "StopThatCrap");
             CGBL A 1 offset(1, 31);
             CGBL A 1 offset(2, 30);
             #### # 0 A_WeaponReady(WRF_NOFIRE|WRF_NOSWITCH);
-            #### # 0 A_JumpIf(invoker.weaponStatus[CHG_FLAGS]&CHG_PUMP, "PumpReload");
+            #### # 0 A_JumpIf(invoker.weaponStatus[CHG_FLAGS]&CHGF_PUMP, "PumpReload");
             goto CrankReload;
 
         CrankReload:
             CGBL BCDEFG 2 offset(2, 30);
             #### # 0 {
-                invoker.weaponStatus[CHG_FLAGS] |= CHG_RIGHT|CHG_CRANK;
+                invoker.weaponStatus[CHG_FLAGS] |= CHGF_RIGHT|CHGF_CRANK;
 
                 A_SetHelpText();
             }
@@ -244,7 +244,7 @@ class HDCharger : HDCellWeapon {
         PumpReload:
             CGPM ABCDEF 2 offset(2, 30);
             #### # 0 {
-                invoker.weaponStatus[CHG_FLAGS] |= CHG_CRANK;
+                invoker.weaponStatus[CHG_FLAGS] |= CHGF_CRANK;
 
                 A_SetHelpText();
             }
@@ -288,7 +288,7 @@ class HDCharger : HDCellWeapon {
 
         //If the player fucks up here it means they're actually on the left side
         RightCrankCheck:
-            #### # 0 A_JumpIf(invoker.weaponStatus[CHG_FLAGS]&CHG_RIGHT, "RightCrank");
+            #### # 0 A_JumpIf(invoker.weaponStatus[CHG_FLAGS]&CHGF_RIGHT, "RightCrank");
             #### # 0 A_StartSound("OddBall/Woopsie", CHAN_WEAPON);
             CGBL K 2 offset(1, 31);
             #### # 2 offset(-1, 33);
@@ -303,8 +303,8 @@ class HDCharger : HDCellWeapon {
 
         RightCrank:
             #### # 0 offset(1, 29) {
-                invoker.weaponStatus[CHG_FLAGS] &= ~CHG_RIGHT;
-                invoker.weaponStatus[CHG_FLAGS] |= CHG_LEFT;
+                invoker.weaponStatus[CHG_FLAGS] &= ~CHGF_RIGHT;
+                invoker.weaponStatus[CHG_FLAGS] |= CHGF_LEFT;
                 A_StartSound("Oddball/Crank", CHAN_WEAPON);
             }
             CGBL HI 2 offset(0, 30) A_CrankinIt();
@@ -319,7 +319,7 @@ class HDCharger : HDCellWeapon {
 
         //If the player fucks up here it means they're actually on the right side
         LeftCrankCheck:
-            #### # 0 A_JumpIf(invoker.weaponStatus[CHG_FLAGS]&CHG_LEFT, "LeftCrank");
+            #### # 0 A_JumpIf(invoker.weaponStatus[CHG_FLAGS]&CHGF_LEFT, "LeftCrank");
             #### # 0 A_StartSound("OddBall/Woopsie", CHAN_WEAPON);
             CGBL G 2 offset(-1, 33);
             #### # 2 offset(1, 31);
@@ -334,8 +334,8 @@ class HDCharger : HDCellWeapon {
         LeftCrank:
             #### # 0 offset(-1, 35);
             #### # 0 {
-                invoker.weaponStatus[CHG_FLAGS] &= ~CHG_LEFT;
-                invoker.weaponStatus[CHG_FLAGS] |= CHG_RIGHT;
+                invoker.weaponStatus[CHG_FLAGS] &= ~CHGF_LEFT;
+                invoker.weaponStatus[CHG_FLAGS] |= CHGF_RIGHT;
                 A_StartSound("Oddball/Crank", CHAN_WEAPON);
             }
             CGBL LM 2 offset(0, 34) A_CrankinIt();
@@ -345,24 +345,24 @@ class HDCharger : HDCellWeapon {
 
         StopThatCrap:
             #### # 0 {
-                invoker.weaponStatus[CHG_FLAGS] &= ~(CHG_CRANK|CHG_LEFT);
+                invoker.weaponStatus[CHG_FLAGS] &= ~(CHGF_CRANK|CHGF_LEFT);
 
                 A_SetHelpText();
 
-                if (invoker.weaponStatus[CHG_FLAGS]&CHG_PUMP) {
+                if (invoker.weaponStatus[CHG_FLAGS]&CHGF_PUMP) {
                     SetWeaponState("Pumpstop");
-                } else if (invoker.weaponStatus[CHG_FLAGS]&CHG_RIGHT) {
+                } else if (invoker.weaponStatus[CHG_FLAGS]&CHGF_RIGHT) {
                     SetWeaponState("Rightstop");
                 }
 
-                invoker.weaponStatus[CHG_FLAGS] &= ~CHG_RIGHT;
+                invoker.weaponStatus[CHG_FLAGS] &= ~CHGF_RIGHT;
             }
             CGBL LMNG 2;
             goto CrankStop;
 
         Rightstop:
             CGBL G 2 {
-                invoker.weaponStatus[CHG_FLAGS] &= ~CHG_RIGHT;
+                invoker.weaponStatus[CHG_FLAGS] &= ~CHGF_RIGHT;
             }
             goto CrankStop;
 
@@ -372,7 +372,7 @@ class HDCharger : HDCellWeapon {
 
         CrankStop:
             CGBL FOP 2 {
-                invoker.weaponStatus[CHG_FLAGS] &= ~CHG_RIGHT;
+                invoker.weaponStatus[CHG_FLAGS] &= ~CHGF_RIGHT;
             }
             #### CB 2;
             #### A 1 offset(2, 30);
@@ -381,12 +381,12 @@ class HDCharger : HDCellWeapon {
             goto ready;
 
         user3:
-            #### # 0 A_MagManager(invoker.weaponStatus[CHG_BATTYPE] ? "HDMicroCell" : "HDBattery");
+            #### # 0 A_MagManager(invoker.weaponStatus[CHG_FLAGS]&CHGF_BATTYPE ? "HDMicroCell" : "HDBattery");
             goto ready;
     }
 
     override void initializewepstats(bool idfa) {
-        weaponStatus[CHG_FLAGS] &= ~(CHG_CRANK|CHG_RIGHT|CHG_LEFT);
+        weaponStatus[CHG_FLAGS] &= ~(CHGF_CRANK|CHGF_RIGHT|CHGF_LEFT);
         weaponStatus[CHG_BATTERY] = -1;
     }
 
@@ -394,11 +394,11 @@ class HDCharger : HDCellWeapon {
 
         // Pump vs Crank
         int pump = getloadoutvar(input, "pump", 1);
-        if (pump > 0) weaponStatus[CHG_FLAGS] |= CHG_PUMP;
+        if (pump > 0) weaponStatus[CHG_FLAGS] |= CHGF_PUMP;
 
         // Micro-Cells vs Batteries
         int micro = getloadoutvar(input, "micro", 1);
-        if (micro > 0) weaponStatus[CHG_BATTYPE] = 1;
+        if (micro > 0) weaponStatus[CHG_FLAGS] |= CHGF_BATTYPE;
     }
 }
 
@@ -412,8 +412,8 @@ class ChargerRandom : IdleDummy {
 
                 HDF.TransferSpecials(self, wpn);
 
-                if (!random(0, 2)) wpn.weaponStatus[CHG_FLAGS] |= CHG_PUMP;
-                if (!random(0, 2)) wpn.weaponStatus[CHG_BATTYPE] = 1;
+                if (!random(0, 2)) wpn.weaponStatus[CHG_FLAGS] |= CHGF_PUMP;
+                if (!random(0, 2)) wpn.weaponStatus[CHG_FLAGS] |= CHGF_BATTYPE;
             }
             Stop;
     }
@@ -429,7 +429,7 @@ class BatteryChargerRandom : IdleDummy {
 
                 HDF.TransferSpecials(self, wpn);
 
-                if (!random(0, 2)) wpn.weaponStatus[CHG_FLAGS] |= CHG_PUMP;
+                if (!random(0, 2)) wpn.weaponStatus[CHG_FLAGS] |= CHGF_PUMP;
             }
             Stop;
     }
@@ -445,23 +445,23 @@ class MicroCellChargerRandom : IdleDummy {
 
                 HDF.TransferSpecials(self, wpn);
 
-                wpn.weaponStatus[CHG_BATTYPE] = 1;
+                wpn.weaponStatus[CHG_FLAGS] |= CHGF_BATTYPE;
 
-                if (!random(0, 2)) wpn.weaponStatus[CHG_FLAGS] |= CHG_PUMP;
+                if (!random(0, 2)) wpn.weaponStatus[CHG_FLAGS] |= CHGF_PUMP;
             }
             Stop;
     }
 }
 
 enum oddballstatus {
-    CHG_CRANK    = 1,
-    CHG_LEFT     = 2,
-    CHG_RIGHT    = 4,
-    CHG_PUMP     = 8,
-
     CHG_FLAGS    = 0,
     CHG_BATTERY  = 1,
-    CHG_BATTYPE  = 2,
     CHG_LOADTYPE = 3,
-    CHG_CHARGE   = 4
+    CHG_CHARGE   = 4,
+
+    CHGF_CRANK   = 1,
+    CHGF_LEFT    = 2,
+    CHGF_RIGHT   = 4,
+    CHGF_PUMP    = 8,
+    CHGF_BATTYPE = 16
 };
